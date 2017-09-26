@@ -8,7 +8,7 @@ categories: typescript functional
 `Maybe` är en datastruktur som är rätt så praktisk att ha. Man använder den när det inte är säkert att det finns någon data men man vill inte göra specialfall som kollar om så är fallet.
 I många funktionella språk så används den som returtyp där vanliga språk hade haft möjligheten att returnera `null`
 
-Vad är då `Maybe`. Ja det är en algebraisk datatyp. En sumtyp. I `TypeScript` kallas dom `tagged unions`. Vad är nu det? Det är en datatyp som kan vara två olika datatyper. Tänk en abstrakt basklass och två barknklasser som har den som förälder. Fast bättre. Om du har en funktion som kan returnera två olika typer av värden så är det alltid problem att modellera det. Man kan returnera någon form av datastruktur som innehåller både stärngen och numret
+Vad är då `Maybe`. Ja det är en algebraisk datatyp. En sumtyp. I `TypeScript` kallas dom `tagged unions`. Vad är nu det? Det är en datatyp som kan vara två olika datatyper. Tänk en abstrakt basklass och två barknklasser som har den som förälder. Fast bättre. Om du har en funktion som kan returnera två olika typer av värden så är det alltid problem att modellera det. Man kan returnera någon form av datastruktur som innehåller både strängen och numret
 
 {% highlight ts %}
 
