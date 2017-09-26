@@ -5,11 +5,11 @@ date:   2017-09-23 12:30:00 +0000
 categories: javascript functional
 ---
 
-The first way is to simply mutate the list in place.
+The first way is to simply create a new list and mutate it by adding elements to it.
 
 {% highlight js %}
 
-// Mutate in place
+// Mutatation
 // map :: (a -> b) -> [a] -> [b]
 const map = (m, l) => {
     let ret = []
