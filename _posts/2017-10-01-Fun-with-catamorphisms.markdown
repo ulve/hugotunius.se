@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Fun With Catamorphisms"
-date:   2017-10-01 12:30:00 +0000
+date:   2017-09-30 00:00:00 +0000
 categories: typescript functional
 ---
 
