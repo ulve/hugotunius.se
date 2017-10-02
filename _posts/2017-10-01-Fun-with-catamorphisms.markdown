@@ -5,11 +5,13 @@ date:   2017-09-30 00:00:00 +0000
 categories: typescript functional
 ---
 
-The word **cata** (ancient Greek: κατά _“down from”_) + **morphism** (ancient Greek: μορφή _“form, shape”_) is used to describe a way to collapse a recursive structure into a new value based on its structure. `fold` defined for a list gives you a hint of what a catamorphisms is able to do. It is a very powerful thing to define for any structure since all other functions can be defined in terms of it. The closes equivalent in Object Oriented programming is perhaps the [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern).
+The word **cata** (ancient Greek: κατά _“down from”_) + **morphism** (ancient Greek: μορφή _“form, shape”_ ) is used to describe a way to collapse a recursive data structure into a new value based on its structure. `fold` defined for a list gives you a hint of what a catamorphisms is able to do. It is a very powerful thing to define for any structure since all other functions can be defined in terms of it. The closest equivalent in Object Oriented programming is perhaps the [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern).
 
-To illustrate a basic catamorphism we have to define a recursive datastructure. This one is basically shamelessly stolen from [fsharpforfunandprofit](https://fsharpforfunandprofit.com/posts/recursive-types-and-folds) (a great resource for every one interested in functional programming).
+To illustrate a basic catamorphism we have to define a recursive datastructure. This one is shamelessly stolen from [fsharpforfunandprofit](https://fsharpforfunandprofit.com/posts/recursive-types-and-folds) (a great resource for every one interested in functional programming).
 
 ## The Gift data structure
+
+This models a gift. A gift can be either chocolate or a book and the gift can be wrapped and/or boxed. Boxes and wrappings are the "container objects" and can contain at most one item, This makes the data structure linerally recursive as opposed to a tree for example.
 
 {% highlight ts %}
 interface Book {
@@ -40,10 +42,11 @@ interface Boxed {
   contains: Gift;
 }
 
-type Gift = Book | Chocolate | Wrapped | Boxed;
+type Gift = Book | Chocolate 
+          | Wrapped | Boxed;
 {% endhighlight %}
 
-We are using `tagged unions` to describe the datatype `Gift`. A gift can either be a `Book` or a `Chocolate`. Where things get a bit more complicated is we add the types `Boxed` and `Wrapped`. A boxed book is still a gift and a wrapped, boxed book still serve as a great birthday present. One flaw here is that an empty box is still considered a gift but that’s OK for this purpose.
+We are using `tagged unions` to describe the datatype `Gift`. A gift can either be a `Book` or a `Chocolate`. Where things get a bit more complicated is we add the types `Boxed` and `Wrapped`. A boxed book is still a gift and a wrapped, boxed book still serve as a great birthday present. One flaw here is that an empty box is still considered a gift but that’s OK for our purpose.
 
 ## The Test Data
 
@@ -77,28 +80,28 @@ let boxed1: Gift = boxGift(chocolate1);
 let wrapped2: Gift = wrapGift(boxed1, wrapping1); 
 {% endhighlight %}
 
-`boxGift` is a function that takes a gift and “puts it in a box”. `wrapGift` takes a gift and a wrapping and returns the newly wrapped gift. This leaves us with a couple of varying gifts.
+`boxGift` is a function that takes a gift and “puts it in a box”. `wrapGift` takes a gift and a wrapping and returns the newly wrapped gift. These are functions that often gets called data constructors in functional languages. Something like constructors in OOP. Using these functions to wrap and box our gifts leaves us with a couple of varying gifts.
 
 ## Life Without Catamorphisms
 
 The first thing we want to do is create a function that takes a gift and tells us whats inside. A form of pretty print for the gift data type. 
 
 {% highlight ts %}
-  const whatsInside = (g: Gift): string => {
-    switch (g.kind) {
-      case "chocolate":
-        return `Delicious ${g.taste} chocolate`;
-      case "book":
-        return `An interesting book named ${g.title}`;
-      case "wrapped":
-        return whatsInside(g.contains) + ` wrapped in ${g.wrapping.pattern}`;
-      case "boxed":
-        return whatsInside(g.contains) + " boxed";
-    }
-  };  
+const whatsInside = (g: Gift): string => {
+  switch (g.kind) {
+    case "chocolate":
+      return `Delicious ${g.taste} chocolate`;
+    case "book":
+      return `An interesting book named ${g.title}`;
+    case "wrapped":
+      return whatsInside(g.contains) + ` wrapped in ${g.wrapping.pattern}`;
+    case "boxed":
+      return whatsInside(g.contains) + " boxed";
+  }
+};  
 {% endhighlight %}
 
-Here we use the `tagged union` to switch on the kind. In case of the both leave-nodes (chocolate and book) we just return a string that informs us of the taste or title.
+Here we use the `tagged union` to switch on the kind. In case of the both leafe-nodes (chocolate and book) we just return a string that informs us of the taste or title.
 The containers (wrapping and boxing) adds the style of paper or just the information that the gift is inside a box. Then it recursively calls `whatsInside` to keep on moving to the center of the gift.
 
 {% highlight ts %}
@@ -146,15 +149,15 @@ console.log(`$ ${totalCost(boxed1)}`);
 //=> $ 27
 {% endhighlight %}
 
-And it seems like it´s adding correctly. Great! But I get this nagging feeling that since the two functions are pretty much the same there is some form of reuse we are missing. 
+And it seems like it´s adding the values correctly. Great! But I get this nagging feeling that since the two functions are pretty much the same there is some form of reuse we are missing. 
 
 ## Here Comes the Catamorphisms
 
-This is where the catamorphisms enter the stage. A catamorphisms is a general way of “collapsing” our gift data structure or generally any recursive data structure. A catamorphism does this by recursion from the bottom up. There are other ways of doing this collapsing but this is a nice and easy way to do it. 
+This is where the catamorphisms enter the stage. A catamorphism is a general way of “collapsing” our gift data structure or generally any recursive data structure. A catamorphism does this by recursion from the bottom up. There are other ways of doing this collapsing but this is a nice and easy way to do it. 
 
 How do we create a catamorphism then? There are just a few steps. If we follow them we will be fine.
 
-Step one is to create a function that that takes four functions. One for `Book`, `Chocolate`, `Box` and `Wrapped` plus the `Gift` we want to traverse. 
+Step one is to create a function that that takes four functions. One for each of our cases `Book`, `Chocolate`, `Box` and `Wrapped` plus the `Gift` we want to traverse. 
 
 {% highlight ts %} 
 const cataGift = <T>(
@@ -166,11 +169,32 @@ const cataGift = <T>(
 ): T 
 {% endhighlight %}
 
-This is our function signature. `cataGift` is generic and parameterized by the type `T`. The first parameter called fBook is the function that will handle book. It takes a function that takes a `Book` and returns a `T`. `fChocolate` behaves the exact same way.
+This is our function signature. `cataGift` is generic and parameterized by the type `T`. The first parameter called fBook is the function that will handle book. It takes a function that takes a `Book` and returns a `T`. In the case of pretty printing it would be something like this:
 
-`fWrapped` is a bit more complicated. It takes a function that takes a `T` and a `Wrapping` and then returns a `T`. This is because the catamorphism will recurse when it encounters a wrapping and the result from the recursion will be `a`
+{% highlight ts %} 
+const fBook = (a: Book) : string => `An interesting book named ${g.title}`;
+{% endhighlight %
 
-Finally our function will take a `Gift` and return a `T`. The complete function will look something like this.
+and when we want to sum the cost it would look something like this:
+
+{% highlight ts %} 
+const fBook = (a: Book) : number => a.price;
+{% endhighlight %
+
+
+`fChocolate` behaves the exact same way.
+
+`fWrapped` is a bit more complicated. It takes a function that takes a `T` and a `Wrapping` and then returns a `T`. This is because the catamorphism will recurse when it encounters a wrapping and the result from the recursion will be  the first parameter `a of type T` and the second parameter will be the Wrapping.
+
+our pretty print would look something like this:
+
+{% highlight ts %} 
+const fWrapped = (a: string, b: Wrapping) : string => a + ` wrapped in ${b.pattern}...`
+{% endhighlight %
+
+Finally our function for boxed will take a `Box` and return a `T`. This is a simpler version of fWrapped.
+
+If we combine all these functions and switch on on the type of gifts the complete function will look something like this.
 
 {% highlight ts %}
 const cataGift = <T>(
@@ -280,7 +304,7 @@ const unwrapper = (gift: Gift): Gift =>
 
 Ok. I created a function called `Id`. It's not really the Identity but it will work in our case. It just takes any number of parameters and returns the first one. That makes it work both with our recursive cases and our simple cases.
 
-Our function takes a `Gift` and returns a `Gift`. The simple cases just returns the same `Book` or `Chocolate`. The wrapped case will just return the fist parameter. in our case that is the contents of the wrapped datatype. Great! That will remove the wrapping! When we hit our boxed case we cant easily just return the same box. If we check our function signature `fBoxed: (a: T) => T` it takes a `T` and returns a `T`. In our case the `T` is a `Gift` and the gift in question is the contents. So we need to re-box our content. Luckily we already have a function that does exactly that. `boxGift` our data constructor for boxes. Just use that
+Our function takes a `Gift` and returns a `Gift`. The simple cases just returns the same `Book` or `Chocolate` using the `Id` function. The wrapped case will just return the fist parameter. in our case that is the contents of the wrapped datatype. Great! That will remove the wrapping! When we hit our boxed case we cant easily just return the same box. If we check our function signature `fBoxed: (a: T) => T` it takes a `T` and returns a `T`. In our case the `T` is a `Gift` and the gift in question is the contents. So we need to re-box our content. Luckily we already have a function that does exactly that. `boxGift` our data constructor for boxes. Just use that
 
 The result:
 
@@ -329,7 +353,7 @@ console.log(nibbler(wrapped2));
 ​​​​​//     contains: { kind: 'chocolate', taste: 'half eaten Strawberry', price: 11 } } }​​​​​
 {% endhighlight %}
 
-Great! And look! They compose
+Great! And look! They compose!
 
 {% highlight ts %}
 nibbler(unboxer(unwrapper(wrapped1))); 
@@ -342,7 +366,9 @@ In any order!
 
 {% highlight ts %}  
 nibbler(unboxer(unwrapper(wrapped2))); 
+// ==
 unboxer(nibbler(unwrapper(wrapped2))); 
+// ==
 unboxer(unwrapper(nibbler(wrapped2))); 
 {% endhighlight %} 
 
@@ -371,5 +397,4 @@ gifts.map(x =>
 {% endhighlight %}
 One great case for catamorphisms is reuse. We have used the same catamorphism for several different uses instead of creating new tailored functions for everything. That's great!
 
-There are some drawbacks. TypeScript is not great for recursion. This can be solved using folds (perhaps something to write about). And depending on your use case the types can become quite hairy. TypeScript is not the optimal langue for doing this kind of work but as I showed here doable and not that complicated.
-
+There are some drawbacks. TypeScript is not great for recursion. This can be solved using folds (perhaps something to write about). And depending on your use case the types can become quite hairy. TypeScript is not the optimal language for doing this kind of work but as I showed here doable and not that complicated.
