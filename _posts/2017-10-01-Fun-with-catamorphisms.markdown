@@ -173,13 +173,13 @@ This is our function signature. `cataGift` is generic and parameterized by the t
 
 {% highlight ts %} 
 const fBook = (a: Book) : string => `An interesting book named ${g.title}`;
-{% endhighlight %
+{% endhighlight %}
 
 and when we want to sum the cost it would look something like this:
 
 {% highlight ts %} 
 const fBook = (a: Book) : number => a.price;
-{% endhighlight %
+{% endhighlight %}
 
 
 `fChocolate` behaves the exact same way.
@@ -190,7 +190,7 @@ our pretty print would look something like this:
 
 {% highlight ts %} 
 const fWrapped = (a: string, b: Wrapping) : string => a + ` wrapped in ${b.pattern}...`
-{% endhighlight %
+{% endhighlight %}
 
 Finally our function for boxed will take a `Box` and return a `T`. This is a simpler version of fWrapped.
 
@@ -374,7 +374,7 @@ unboxer(unwrapper(nibbler(wrapped2)));
 
 Lets make a list of all gifts
 {% highlight ts %}
-let gifts: [Gift] = [book1, chocolate1, wrapped1, boxed1, wrapped2]; /*?*/
+let gifts: [Gift] = [book1, chocolate1, wrapped1, boxed1, wrapped2];
 {% endhighlight %}
 
 Then we can sum the total costs of all the gifts using a ordinary reduce
@@ -395,6 +395,7 @@ gifts.map(x =>
       Id,
       x)); 
 {% endhighlight %}
+
 One great case for catamorphisms is reuse. We have used the same catamorphism for several different uses instead of creating new tailored functions for everything. That's great!
 
 There are some drawbacks. TypeScript is not great for recursion. This can be solved using folds (perhaps something to write about). And depending on your use case the types can become quite hairy. TypeScript is not the optimal language for doing this kind of work but as I showed here doable and not that complicated.
