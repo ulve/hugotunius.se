@@ -101,7 +101,7 @@ const whatsInside = (g: Gift): string => {
 };  
 {% endhighlight %}
 
-Here we use the `tagged union` to switch on the kind. In case of the both leafe-nodes (chocolate and book) we just return a string that informs us of the taste or title.
+Here we use the `tagged union` to switch on the kind. In case of the both leaf-nodes (chocolate and book) we just return a string that informs us of the taste or title.
 The containers (wrapping and boxing) adds the style of paper or just the information that the gift is inside a box. Then it recursively calls `whatsInside` to keep on moving to the center of the gift.
 
 {% highlight ts %}
@@ -194,7 +194,7 @@ const fWrapped = (a: string, b: Wrapping) : string => a + ` wrapped in ${b.patte
 
 Finally our function for boxed will take a `Box` and return a `T`. This is a simpler version of fWrapped.
 
-If we combine all these functions and switch on on the type of gifts the complete function will look something like this.
+If we combine all these functions and switch on the type of gifts the complete function will look something like this.
 
 {% highlight ts %}
 const cataGift = <T>(
@@ -346,11 +346,11 @@ const nibbler = (gift: Gift): Gift =>
     cataGift(Id, nibble, wrapGift, boxGift, gift); 
 
 console.log(nibbler(wrapped2));
-//=> ​​​​​{ kind: 'wrapped',​​​​​
-​​​​​//  wrapping: { kind: 'wrapping', pattern: 'diamonds' },​​​​​
-​​​​​//  contains: ​​​​​
-​​​​​//   { kind: 'boxed',​​​​​
-​​​​​//     contains: { kind: 'chocolate', taste: 'half eaten Strawberry', price: 11 } } }​​​​​
+//=> { kind: 'wrapped',
+//  wrapping: { kind: 'wrapping', pattern: 'diamonds' },
+//  contains:
+//   { kind: 'boxed',
+//     contains: { kind: 'chocolate', taste: 'half eaten Strawberry', price: 11 } } }
 {% endhighlight %}
 
 Great! And look! They compose!
