@@ -5,8 +5,6 @@ date:   2017-10-08 00:00:00 +0000
 categories: typescript functional
 ---
 
-# Futures in TypeScript
-
 In functional programming Promises are not the norm for async communications. The datatype **Future** is far more wide spread. This will be my try to implement a basic Future in TypeScript.
 
 ## What Differs Futures from Promises
